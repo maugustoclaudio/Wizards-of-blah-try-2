@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Teu Jogo</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+
+        /* Estilo para os botões de controlo da câmara */
+        .camera-controls {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none; /* Permite clicar "através" do container */
+        }
+        
+        .camera-btn {
+            padding: 10px 15px;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 0 20px;
+            pointer-events: all; /* Torna os botões clicáveis */
+            transition: background-color 0.3s;
+        }
+
+        .camera-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="camera-controls">
+        <button id="rotate-left-btn" class="camera-btn">↶</button>
+        <button id="rotate-right-btn" class="camera-btn">↷</button>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
