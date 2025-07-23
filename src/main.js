@@ -25,21 +25,18 @@ async function initialize() {
     worldManager.generate();
 
     // Obtemos a posição inicial do WorldManager e criamos o personagem
-    const startPosition = worldManager.getStartPosition();
-    character = new Character(sceneManager, startPosition); // Passamos a posição inicial
+    interactionManager.setWorldManager(worldManager);
 
-    aiController = new AIController(character);
-
-    const cameraTarget = startPosition.clone();
-    cameraTarget.y = 0;
-
-    const initialCameraFocus = worldManager.getChunkCenter(13, 8);
-    sceneManager.focusOnPoint(initialCameraFocus);
-
+    worldManager.generate();
     
-
+    const startPosition = worldManager.getStartPosition();
+    character = new Character(sceneManager, startPosition);
+    aiController = new AIController(character);
+    
+    const initialCameraFocus = worldManager.getChunkCenter(6, 6);
+    sceneManager.focusOnPoint(initialCameraFocus);
+    
     setupCameraControls();
-    // Inicia o loop do jogo
     animate();
 }
 

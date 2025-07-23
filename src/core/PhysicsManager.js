@@ -48,6 +48,10 @@ class PhysicsManager {
         
         return rigidBody;
     }
+
+    removeRigidBody(body) {
+    this.world.removeRigidBody(body);
+    }
 }
 
 export default new PhysicsManager(); // Exportamos uma única instância (Singleton)

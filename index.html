@@ -34,6 +34,44 @@
         .camera-btn:hover {
             background-color: rgba(0, 0, 0, 0.8);
         }
+
+        .dialog-hidden {
+            display: none !important;
+        }
+
+        #dialog-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #dialog-box {
+            background-color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        .dialog-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        #confirm-btn {
+            background-color: #4CAF50; /* Verde */
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +81,16 @@
     </div>
 
     <canvas id="game-canvas"></canvas>
+
+    <div id="dialog-overlay" class="dialog-hidden">
+    <div id="dialog-box">
+        <p>Deseja converter este pedaço de terra?</p>
+        <div class="dialog-buttons">
+            <button id="confirm-btn">Confirmar</button>
+            <button id="cancel-btn">Cancelar</button>
+        </div>
+    </div>
+</div>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>

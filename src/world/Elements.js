@@ -30,6 +30,8 @@ export function createTree(position) {
     const obstacleSize = { x: trunkRadius * 2, y: trunkHeight, z: trunkRadius * 2 };
     PhysicsManager.createStaticBody(position, obstacleSize);
     PathfindingManager.markObstacle(position, {x: 1, z: 1}); // Marcamos uma célula 1x1 como obstáculo
+    const physicsBody = PhysicsManager.createStaticBody(position, obstacleSize); // Guardamos a referência
+    treeGroup.userData.physicsBody = physicsBody; // Associamos ao grupo da árvore
 
     return treeGroup;
 }

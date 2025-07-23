@@ -5,6 +5,7 @@ export class InteractionManager {
         this.camera = camera;
         this.scene = scene;
         this.domElement = domElement;
+        this.worldManager = null;
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -17,8 +18,31 @@ export class InteractionManager {
         this.highlightMesh = this.createHighlightMesh();
         this.scene.add(this.highlightMesh);
 
+        this.dialogOverlay = document.getElementById('dialog-overlay');
+        this.confirmBtn = document.getElementById('confirm-btn');
+        this.cancelBtn = document.getElementById('cancel-btn');
+        this.activeChunk = null; // O chunk que foi clicado
+
         // Adicionamos o "ouvinte" do evento de movimento do rato
         this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+        this.domElement.addEventListener('click', this.onClick.bind(this), false);
+
+        this.confirmBtn.addEventListener('click', this.onConfirm.bind(this));
+        this.cancelBtn.addEventListener('click', this.onCancel.bind(this));
+    }
+
+        onClick() {
+        // Se o rato estiver sobre um chunk selecionável
+        if (this.currentIntersect) {
+            const chunk = this.currentIntersect.userData.chunk;
+            if (chunk && chunk.isSelectable) {
+                this.openDialog(chunk);
+            }
+        }
+    }
+
+       setWorldManager(worldManager) {
+        this.worldManager = worldManager;
     }
     
     // Função para um chunk se registar como um alvo clicável
@@ -44,6 +68,35 @@ export class InteractionManager {
         // Calcula a posição do rato em coordenadas normalizadas (-1 a +1)
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+        openDialog(chunk) {
+        this.activeChunk = chunk;
+        this.dialogOverlay.classList.remove('dialog-hidden');
+    }
+
+    closeDialog() {
+        this.activeChunk = null;
+        this.dialogOverlay.classList.add('dialog-hidden');
+    }
+
+ onConfirm() {
+    console.log("[PASSO 1] InteractionManager: Botão 'Confirmar' clicado.");
+    if (this.activeChunk && this.worldManager) {
+        console.log("[PASSO 2] InteractionManager: Chunk ativo encontrado. A chamar 'transformChunkToFree'.", this.activeChunk);
+        this.worldManager.transformChunkToFree(this.activeChunk);
+        console.log("[PASSO 3] InteractionManager: Chamada para 'transformChunkToFree' concluída.");
+    } else {
+        console.error("ERRO GRAVE: Chunk ativo ou WorldManager não encontrado!", { 
+            activeChunk: this.activeChunk, 
+            worldManager: this.worldManager 
+        });
+    }
+    this.closeDialog();
+}
+
+    onCancel() {
+        this.closeDialog();
     }
     
     // Este método será chamado a cada frame no loop principal

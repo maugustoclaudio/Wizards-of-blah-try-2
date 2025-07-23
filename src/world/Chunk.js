@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { createTree } from './Elements.js';
+import { createTree} from './Elements.js';
+import PhysicsManager from '../core/PhysicsManager.js';
 
 export class Chunk {
     constructor(sceneManager, interactionManager, type, worldPosition) {
@@ -9,6 +10,11 @@ export class Chunk {
         this.worldPosition = worldPosition;
         this.size = 15;
         this.isSelectable = false;
+        // Criamos um grupo para conter todos os objetos visuais deste chunk
+        this.contentGroup = new THREE.Group();
+        this.sceneManager.add(this.contentGroup);
+
+        this.createInteractionPlane();
 
 
         this.createInteractionPlane();
@@ -43,11 +49,30 @@ export class Chunk {
                 const z = this.worldPosition.z + (Math.random() - 0.5) * this.size;
                 
                 const tree = createTree(new THREE.Vector3(x, 0, z));
-                this.sceneManager.add(tree);
+                this.contentGroup.add(tree);
+
             }
         }
         // Se o tipo for 'free', não fazemos nada, fica um espaço aberto.
     }
+
+clearContent() {
+    console.log("[PASSO 10] Chunk: A executar clearContent.");
+    console.log(`[PASSO 11 - CRÍTICO] Chunk: O 'contentGroup' tem ${this.contentGroup.children.length} filhos para remover.`);
+    
+    while (this.contentGroup.children.length > 0) {
+        const child = this.contentGroup.children[0];
+        console.log("[PASSO 12] Chunk: A remover filho (árvore):", child);
+        
+        if (child.userData.physicsBody) {
+            console.log("[PASSO 13] Chunk: A remover corpo físico da árvore.");
+            PhysicsManager.removeRigidBody(child.userData.physicsBody);
+        }
+        
+        this.contentGroup.remove(child);
+    }
+    console.log("[PASSO 14] Chunk: Limpeza de conteúdo concluída.");
+}
 
     
 }

@@ -14,10 +14,18 @@ export class WorldManager {
         this.WORLD_SIZE = this.CHUNK_SIZE * this.GRID_DIMENSIONS; // 55x55 unidades
         
         this.chunks = []; // Para guardar os nossos chunks
+
+        this.isGenerated = false;
     }
 
     generate() {
         // 1. Criar o chão principal
+
+               if (this.isGenerated) {
+            console.warn("WorldManager: Tentativa de gerar o mundo novamente. A abortar.");
+            return;
+        }
+
         const groundSize = { x: this.WORLD_SIZE, y: 1, z: this.WORLD_SIZE };
         const groundPos = { x: 0, y: -0.5, z: 0 };
         const groundGeometry = new THREE.BoxGeometry(groundSize.x, groundSize.y, groundSize.z);
@@ -60,18 +68,26 @@ export class WorldManager {
 
         this.calculateSelectableChunks();
         console.log("Mundo gerado com uma grelha de " + this.GRID_DIMENSIONS + "x" + this.GRID_DIMENSIONS + " chunks.");
+        this.isGenerated = true;
     }
 
         calculateSelectableChunks() {
+
+                for (let gx = 0; gx < this.GRID_DIMENSIONS; gx++) {
+        for (let gz = 0; gz < this.GRID_DIMENSIONS; gz++) {
+            this.chunks[gx][gz].isSelectable = false;
+        }
+    }
+
         const freeChunks = [];
         // Primeiro, encontramos todos os chunks livres
-        for (let gx = 0; gx < this.GRID_DIMENSIONS; gx++) {
-            for (let gz = 0; gz < this.GRID_DIMENSIONS; gz++) {
-                if (this.chunks[gx][gz].type === 'free') {
-                    freeChunks.push({ x: gx, z: gz });
-                }
+    for (let gx = 0; gx < this.GRID_DIMENSIONS; gx++) {
+        for (let gz = 0; gz < this.GRID_DIMENSIONS; gz++) {
+            if (this.chunks[gx][gz].type === 'free') {
+                freeChunks.push({ x: gx, z: gz });
             }
         }
+    }
         
             for (let gx = 0; gx < this.GRID_DIMENSIONS; gx++) {
             for (let gz = 0; gz < this.GRID_DIMENSIONS; gz++) {
@@ -107,4 +123,26 @@ export class WorldManager {
         // Posição para o alvo da câmara (sem altura)
         return new THREE.Vector3(worldX, 0, worldZ);
     }
+
+transformChunkToFree(chunk) {
+    console.log("[PASSO 4] WorldManager: A transformar o chunk.", chunk);
+    if (chunk.type === 'free') {
+        console.warn("WorldManager: Tentativa de transformar um chunk que já é 'free'. A abortar.");
+        return;
+    }
+
+    console.log("[PASSO 5] WorldManager: A chamar chunk.clearContent()");
+    chunk.clearContent();
+
+    console.log("[PASSO 6] WorldManager: A chamar PathfindingManager.clearObstacle()");
+    PathfindingManager.clearObstacle(chunk.worldPosition, { x: chunk.size, z: chunk.size });
+    
+    chunk.type = 'free';
+    console.log("[PASSO 7] WorldManager: Tipo do chunk alterado para 'free'.");
+
+    console.log("[PASSO 8] WorldManager: A chamar calculateSelectableChunks()");
+    this.calculateSelectableChunks();
+
+    console.log("[PASSO 9] WorldManager: Transformação do chunk concluída.");
+}
 }

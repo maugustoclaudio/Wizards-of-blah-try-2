@@ -81,6 +81,26 @@ class PathfindingManager {
         
         return this.gridToWorld([x, y]);
     }
+
+
+clearObstacle(position, size) {
+    const start = this.worldToGrid({
+        x: position.x - size.x / 2,
+        z: position.z - size.z / 2,
+    });
+    const end = this.worldToGrid({
+        x: position.x + size.x / 2,
+        z: position.z + size.z / 2,
+    });
+
+    for (let y = start.y; y < end.y; y++) {
+        for (let x = start.x; x < end.x; x++) {
+            if (x >= 0 && x < this.grid.width && y >= 0 && y < this.grid.height) {
+                this.grid.setWalkableAt(x, y, true); // True para tornar caminhável
+            }
+        }
+    }
+}
 }
 
 // Exportamos uma única instância (Singleton)
