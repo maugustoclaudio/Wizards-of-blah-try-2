@@ -3,11 +3,14 @@ import PhysicsManager from './core/PhysicsManager.js';
 import { Character } from './components/Character.js';
 import { WorldManager } from './core/WorldManager.js';
 import { AIController } from './components/AIController.js';
+import { InteractionManager } from './core/InteractionManager.js';
 import * as THREE from 'three';
 
 // --- Inicialização ---
 const canvas = document.getElementById('game-canvas');
 const sceneManager = new SceneManager(canvas);
+
+const interactionManager = new InteractionManager(sceneManager.camera, sceneManager.scene, canvas);
 
 let character;
 let aiController;
@@ -18,7 +21,7 @@ async function initialize() {
     await PhysicsManager.init();
 
     // Usamos o WorldManager para gerar o mundo
-    worldManager = new WorldManager(sceneManager);
+    worldManager = new WorldManager(sceneManager, interactionManager);
     worldManager.generate();
 
     // Obtemos a posição inicial do WorldManager e criamos o personagem
@@ -30,7 +33,11 @@ async function initialize() {
     const cameraTarget = startPosition.clone();
     cameraTarget.y = 0;
 
-    sceneManager.focusOnPoint(startPosition);
+    const initialCameraFocus = worldManager.getChunkCenter(13, 8);
+    sceneManager.focusOnPoint(initialCameraFocus);
+
+    
+
     setupCameraControls();
     // Inicia o loop do jogo
     animate();
@@ -59,6 +66,8 @@ function animate() {
 
     // 1. Atualiza a física
     PhysicsManager.update();
+
+    interactionManager.update();
     
     // 2. Atualiza a lógica da IA
     if(aiController) {

@@ -7,11 +7,12 @@ export class SceneManager {
         this.scene = new THREE.Scene();
 
         const aspect = window.innerWidth / window.innerHeight;
-        const frustumSize = 120;
+        const frustumSize = 30;
         this.camera = new THREE.OrthographicCamera(
             frustumSize * aspect / -2, frustumSize * aspect / 2,
             frustumSize / 2, frustumSize / -2,
-            -100, 1000
+            0.1,
+            1000
         );
 
         this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -25,7 +26,7 @@ export class SceneManager {
         this.setup();
     }
 
-    setup() {
+   setup() {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -33,22 +34,35 @@ export class SceneManager {
         this.scene.add(ambientLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 10, 7.5);
+        directionalLight.position.set(50, 100, 50); // Posição mais alta para melhor cobertura
         this.scene.add(directionalLight);
+
+        // Expandimos a área de efeito da luz direcional para cobrir o mundo todo.
+        const worldSize = 165; // 11 chunks * 15 unidades
+        directionalLight.shadow.camera.left = -worldSize / 2;
+        directionalLight.shadow.camera.right = worldSize / 2;
+        directionalLight.shadow.camera.top = worldSize / 2;
+        directionalLight.shadow.camera.bottom = -worldSize / 2;
+        directionalLight.shadow.camera.near = 0.5;
+        directionalLight.shadow.camera.far = 500;
+        // --- FIM DA CORREÇÃO ---
 
         window.addEventListener('resize', () => this.onWindowResize(), false);
     }
     
+    // --- VERSÃO CORRIGIDA E LIMPA ---
     focusOnPoint(point) {
-        this.controls.target.set(point.x, 0, point.z);
-        this.controls.target.copy(point);
-        this.camera.position.set(point.x + 20, point.y + 50, point.z + 20);
+        // 1. Define o alvo da câmara no chão (y=0)
+        this.controls.target.set(point.x, 50, point.z);
+
+        // 2. Posiciona a câmara a uma altura consistente em relação ao alvo
         this.camera.position.set(
             this.controls.target.x + 20,
-            this.controls.target.y + 20,
+            this.controls.target.y + 20, // y do alvo é 0, então a câmara fica em y=20
             this.controls.target.z + 20
         );
 
+        // 3. Aponta a câmara para o alvo
         this.camera.lookAt(this.controls.target);
     }
 
@@ -67,7 +81,6 @@ export class SceneManager {
             x: newPosition.x, y: newPosition.y, z: newPosition.z,
             duration: 0.7, ease: 'power2.inOut',
             onUpdate: () => {
-                this.controls.update();
                 this.camera.lookAt(this.controls.target);
             }
         });
@@ -90,11 +103,9 @@ export class SceneManager {
         this.scene.add(object);
     }
 
-    // --- MÉTODO RENOMEADO DE 'render' PARA 'update' ---
-    // Esta é a correção. O método chama-se agora 'update'.
     update() {
-        this.controls.update(); // Atualiza os controlos de câmara
-        this.renderer.render(this.scene, this.camera); // Renderiza a cena
+        this.controls.update();
+        this.renderer.render(this.scene, this.camera);
     }
 }
 
